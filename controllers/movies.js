@@ -11,32 +11,30 @@ module.exports.getMovies = (req, res, next) => {
 
 module.exports.createMovie = (req, res, next) => {
   const {
-    country, director, duration, year, description,
+    movieId, country, director, duration, year, description,
     image, trailerLink, nameRU, nameEN, thumbnail,
   } = req.body;
 
-  Movie.find({})
-    .then((movies) => Movie.create({
-      movieId: movies.length + 1,
-      country,
-      director,
-      duration,
-      year,
-      description,
-      image,
-      trailerLink,
-      nameRU,
-      nameEN,
-      thumbnail,
-      owner: req.user._id,
-    })
-      .then((movie) => res.send(movie))
-      .catch((err) => {
-        if (err.name === 'ValidationError') {
-          next(new ValidationError('Переданы некорректные данные при добавлении фильма'));
-        } else next(err);
-      }))
-    .catch(next);
+  Movie.create({
+    movieId,
+    country,
+    director,
+    duration,
+    year,
+    description,
+    image,
+    trailerLink,
+    nameRU,
+    nameEN,
+    thumbnail,
+    owner: req.user._id,
+  })
+    .then((movie) => res.send(movie))
+    .catch((err) => {
+      if (err.name === 'ValidationError') {
+        next(new ValidationError('Переданы некорректные данные при добавлении фильма'));
+      } else next(err);
+    });
 };
 
 module.exports.deleteMovie = (req, res, next) => {

@@ -23,10 +23,6 @@ module.exports.getUser = (req, res, next) => {
 module.exports.updateUserInfo = (req, res, next) => {
   const { email, name } = req.body;
 
-  if (!email || !name) {
-    next(new ValidationError('Поля \'email\' и \'name\' должны быть заполнены'));
-  }
-
   User.findByIdAndUpdate(
     req.user._id,
     { email, name },
@@ -39,6 +35,9 @@ module.exports.updateUserInfo = (req, res, next) => {
     .catch((err) => {
       if (err.name === 'ValidationError') {
         next(new ValidationError('Переданы некорректные данные при обновлении информации о пользователе'));
+      }
+      if (err.code === 11000) {
+        next(new ConflictError('Нельзя редактировать данные другого пользователя'));
       } else next(err);
     });
 };
