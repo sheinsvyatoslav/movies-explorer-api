@@ -12,5 +12,3 @@ Api для проекта Beatfilms. Все входящие запросы пр
 * MongoDB
 * Joi
 * ESLint
-
-Ссылка на API: https://movies.explorer.sv.nomoredomains.xyz
