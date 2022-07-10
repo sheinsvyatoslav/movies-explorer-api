@@ -12,7 +12,7 @@ const errorHandler = require('./middlewares/errors');
 
 const { requestLogger, errorLogger } = require('./middlewares/logger');
 
-const { PORT = 3000, DATABASE_URL = 'mongodb://localhost:27017/moviesdb' } = process.env;
+const { PORT = 5000, DATABASE_URL = 'mongodb+srv://sheinsvyatoslav:M8rDvN01WsFqGsm4@cluster0.htt72.mongodb.net/moviesdb?retryWrites=true' } = process.env;
 const app = express();
 app.use(cors());
 app.use(helmet());
