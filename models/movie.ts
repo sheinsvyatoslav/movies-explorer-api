@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+import mongoose from "mongoose";
 
 const movieSchema = new mongoose.Schema({
   movieId: {
@@ -29,8 +29,8 @@ const movieSchema = new mongoose.Schema({
     type: String,
     required: true,
     validate: {
-      validator(v) {
-        return /http[s]?:\/\/(www.)?[\S]+\.[a-z]+[\S]*/.test(v);
+      validator(image: string) {
+        return /http[s]?:\/\/(www.)?[\S]+\.[a-z]+[\S]*/.test(image);
       },
     },
   },
@@ -38,8 +38,8 @@ const movieSchema = new mongoose.Schema({
     type: String,
     required: true,
     validate: {
-      validator(v) {
-        return /http[s]?:\/\/(www.)?[\S]+\.[a-z]+[\S]*/.test(v);
+      validator(trailerLink: string) {
+        return /http[s]?:\/\/(www.)?[\S]+\.[a-z]+[\S]*/.test(trailerLink);
       },
     },
   },
@@ -47,14 +47,14 @@ const movieSchema = new mongoose.Schema({
     type: String,
     required: true,
     validate: {
-      validator(v) {
-        return /http[s]?:\/\/(www.)?[\S]+\.[a-z]+[\S]*/.test(v);
+      validator(thumbnail: string) {
+        return /http[s]?:\/\/(www.)?[\S]+\.[a-z]+[\S]*/.test(thumbnail);
       },
     },
   },
   owner: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'user',
+    ref: "user",
     required: true,
   },
   nameRU: {
@@ -67,4 +67,4 @@ const movieSchema = new mongoose.Schema({
   },
 });
 
-module.exports = mongoose.model('movie', movieSchema);
+export const MovieModel = mongoose.model("movie", movieSchema);
