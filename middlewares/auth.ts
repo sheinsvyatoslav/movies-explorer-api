@@ -1,14 +1,18 @@
-import { NextFunction, Response } from "express";
-import jwt from "jsonwebtoken";
+import dotenv from "dotenv";
+import { NextFunction, Request, Response } from "express";
+import jwt, { JwtPayload } from "jsonwebtoken";
 
-import "dotenv/config.js";
-
-import { UserRequest } from "../controllers/users";
 import { UnauthorizedError } from "../errors/unauthorized-error";
+
+dotenv.config();
 
 const { JWT_SECRET = "dev-secret" } = process.env;
 
-export default (req: UserRequest, res: Response, next: NextFunction) => {
+type TokenRequest = {
+  token: string | JwtPayload;
+} & Request;
+
+export const auth = (req: Request, res: Response, next: NextFunction) => {
   const { authorization } = req.headers;
 
   if (!authorization || !authorization.startsWith("Bearer ")) {
@@ -24,7 +28,7 @@ export default (req: UserRequest, res: Response, next: NextFunction) => {
     throw new UnauthorizedError("Необходима авторизация");
   }
 
-  req.user = payload;
+  (req as TokenRequest).token = payload;
 
   next();
 };

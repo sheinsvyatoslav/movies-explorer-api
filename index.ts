@@ -1,17 +1,18 @@
 import { errors } from "celebrate";
 import cors from "cors";
+import dotenv from "dotenv";
 import express from "express";
 import helmet from "helmet";
 import mongoose from "mongoose";
 
-import "dotenv/config.js";
-
 import { NotFoundError } from "./errors/not-found-error";
-import authorization from "./middlewares/auth";
-import errorHandler from "./middlewares/errors";
+import { auth } from "./middlewares/auth";
+import { errorHandler } from "./middlewares/errors";
 import { errorLogger, requestLogger } from "./middlewares/logger";
 import authRouter from "./routers/auth";
 import appRouter from "./routers/index";
+
+dotenv.config();
 
 const {
   PORT = 5000,
@@ -23,7 +24,7 @@ app.use(helmet());
 app.use(express.json());
 app.use(requestLogger);
 app.use(authRouter);
-app.use(authorization);
+app.use(auth);
 app.use(appRouter);
 app.use(() => {
   throw new NotFoundError("Страница не найдена");
@@ -34,6 +35,4 @@ app.use(errorHandler);
 
 mongoose.connect(DATABASE_URL);
 
-app.listen(PORT, () => {
-  console.log(`App listening on port ${PORT}`);
-});
+app.listen(PORT, () => console.log(`App listening on port ${PORT}`));

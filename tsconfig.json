@@ -2,15 +2,11 @@
   "compileOnSave": true,
   "compilerOptions": {
       "outDir": "./build",
-      "allowJs": true,
       "target": "es6",
-      "allowUnreachableCode": false,
-      "noImplicitReturns": true,
-      "noImplicitAny": true,
-      "typeRoots": [ "./typings" ],
-      "outFile": "./build/combined.js",
-      "module": "system",
-      "moduleResolution": "node",
+      "module": "commonjs",
+      "strict": true,
+      "esModuleInterop": true,
+      "skipLibCheck": true
   },
   "include": [
       "./**/*"

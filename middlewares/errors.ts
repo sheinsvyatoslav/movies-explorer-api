@@ -1,5 +1,5 @@
 import { NextFunction, Request, Response } from "express";
-export default (
+export const errorHandler = (
   err: Error & { statusCode: number },
   req: Request,
   res: Response,

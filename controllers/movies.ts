@@ -13,7 +13,7 @@ export const getMovies = (req: Request, res: Response, next: NextFunction) => {
     .catch(next);
 };
 
-export const createMovie = (req: UserRequest, res: Response, next: NextFunction) => {
+export const createMovie = (req: Request, res: Response, next: NextFunction) => {
   const {
     movieId,
     country,
@@ -40,7 +40,7 @@ export const createMovie = (req: UserRequest, res: Response, next: NextFunction)
     nameRU,
     nameEN,
     thumbnail,
-    owner: req.user._id,
+    owner: (req as UserRequest).user._id,
   })
     .then((movie) => res.send(movie))
     .catch((err: Error) => {
@@ -52,13 +52,12 @@ export const createMovie = (req: UserRequest, res: Response, next: NextFunction)
     });
 };
 
-export const deleteMovie = (req: UserRequest, res: Response, next: NextFunction) => {
+export const deleteMovie = (req: Request, res: Response, next: NextFunction) => {
   MovieModel.findById(req.params.movieId)
     .then(async (movie) => {
       if (!movie) {
         next(new NotFoundError("Фильм по указанному id не найден"));
-      }
-      if (movie.owner._id.toString() !== req.user._id) {
+      } else if (movie.owner._id.toString() !== (req as UserRequest).user._id) {
         next(new ForbiddenError("Нельзя удалить фильм другого пользователя"));
       }
       return MovieModel.findByIdAndRemove(req.params.movieId).then((delMovie) =>

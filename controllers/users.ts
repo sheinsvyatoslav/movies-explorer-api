@@ -1,8 +1,7 @@
 import bcrypt from "bcryptjs";
+import dotenv from "dotenv";
 import { NextFunction, Request, Response } from "express";
-import jwt from "jsonwebtoken";
-
-import "dotenv/config.js";
+import jwt, { Secret } from "jsonwebtoken";
 
 import { ConflictError } from "../errors/conflict-error";
 import { NotFoundError } from "../errors/not-found-error";
@@ -11,14 +10,16 @@ import { ValidationError } from "../errors/validation-error";
 import { UserModel } from "../models/user";
 import { User } from "../models/user";
 
+dotenv.config();
+
 const { NODE_ENV, JWT_SECRET } = process.env;
 
 export type UserRequest = {
   user: User;
 } & Request;
 
-export const getUser = (req: UserRequest, res: Response, next: NextFunction) => {
-  UserModel.findOne({ _id: req.user._id }).then((user) => {
+export const getUser = (req: Request, res: Response, next: NextFunction) => {
+  UserModel.findOne({ _id: (req as UserRequest).user._id }).then((user) => {
     if (!user) {
       next(new NotFoundError("Пользователь не найден"));
     }
@@ -27,11 +28,11 @@ export const getUser = (req: UserRequest, res: Response, next: NextFunction) => 
   });
 };
 
-export const updateUser = (req: UserRequest, res: Response, next: NextFunction) => {
+export const updateUser = (req: Request, res: Response, next: NextFunction) => {
   const { email, name } = req.body;
 
   UserModel.findByIdAndUpdate(
-    req.user._id,
+    (req as UserRequest).user._id,
     { email, name },
     {
       new: true,
@@ -81,14 +82,14 @@ export const createUser = (req: Request, res: Response, next: NextFunction) => {
   );
 };
 
-export const login = (req: Request, res: Response, next: NextFunction) => {
+export const login = async (req: Request, res: Response, next: NextFunction) => {
   const { email, password } = req.body;
 
   return UserModel.findUserByCredentials(email, password)
     .then((user) => {
       const token = jwt.sign(
         { _id: user._id },
-        NODE_ENV === "production" ? JWT_SECRET : "dev-secret",
+        NODE_ENV === "production" ? (JWT_SECRET as Secret) : ("dev-secret" as Secret),
         { expiresIn: "7d" }
       );
       res.send({ token }).end();
