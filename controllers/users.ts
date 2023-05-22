@@ -7,19 +7,13 @@ import { ConflictError } from "../errors/conflict-error";
 import { NotFoundError } from "../errors/not-found-error";
 import { UnauthorizedError } from "../errors/unauthorized-error";
 import { ValidationError } from "../errors/validation-error";
+import { AuthRequest } from "../middlewares/auth";
 import { UserModel } from "../models/user";
-import { User } from "../models/user";
 
 dotenv.config();
 
-const { NODE_ENV, JWT_SECRET } = process.env;
-
-export type UserRequest = {
-  user: User;
-} & Request;
-
 export const getUser = (req: Request, res: Response, next: NextFunction) => {
-  UserModel.findOne({ _id: (req as UserRequest).user._id }).then((user) => {
+  UserModel.findOne({ _id: (req as AuthRequest).token._id }).then((user) => {
     if (!user) {
       next(new NotFoundError("Пользователь не найден"));
     }
@@ -32,7 +26,7 @@ export const updateUser = (req: Request, res: Response, next: NextFunction) => {
   const { email, name } = req.body;
 
   UserModel.findByIdAndUpdate(
-    (req as UserRequest).user._id,
+    (req as AuthRequest).token._id,
     { email, name },
     {
       new: true,
@@ -86,12 +80,8 @@ export const login = async (req: Request, res: Response, next: NextFunction) => 
   const { email, password } = req.body;
 
   return UserModel.findUserByCredentials(email, password)
-    .then((user) => {
-      const token = jwt.sign(
-        { _id: user._id },
-        NODE_ENV === "production" ? (JWT_SECRET as Secret) : ("dev-secret" as Secret),
-        { expiresIn: "7d" }
-      );
+    .then(({ _id }) => {
+      const token = jwt.sign({ _id }, process.env.JWT_SECRET as Secret, { expiresIn: "7d" });
       res.send({ token }).end();
     })
     .catch((err) => {

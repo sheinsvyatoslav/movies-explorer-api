@@ -3,9 +3,8 @@ import { NextFunction, Request, Response } from "express";
 import { ForbiddenError } from "../errors/forbidden-error";
 import { NotFoundError } from "../errors/not-found-error";
 import { ValidationError } from "../errors/validation-error";
+import { AuthRequest } from "../middlewares/auth";
 import { MovieModel } from "../models/movie";
-
-import { UserRequest } from "./users";
 
 export const getMovies = (req: Request, res: Response, next: NextFunction) => {
   MovieModel.find({})
@@ -40,7 +39,7 @@ export const createMovie = (req: Request, res: Response, next: NextFunction) => 
     nameRU,
     nameEN,
     thumbnail,
-    owner: (req as UserRequest).user._id,
+    owner: (req as AuthRequest).token._id,
   })
     .then((movie) => res.send(movie))
     .catch((err: Error) => {
@@ -57,9 +56,10 @@ export const deleteMovie = (req: Request, res: Response, next: NextFunction) => 
     .then(async (movie) => {
       if (!movie) {
         next(new NotFoundError("Фильм по указанному id не найден"));
-      } else if (movie.owner._id.toString() !== (req as UserRequest).user._id) {
+      } else if (movie.owner._id.toString() !== (req as AuthRequest).token._id) {
         next(new ForbiddenError("Нельзя удалить фильм другого пользователя"));
       }
+
       return MovieModel.findByIdAndRemove(req.params.movieId).then((delMovie) =>
         res.send(delMovie)
       );

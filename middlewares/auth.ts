@@ -1,15 +1,13 @@
-import dotenv from "dotenv";
+import * as dotenv from "dotenv";
 import { NextFunction, Request, Response } from "express";
-import jwt, { JwtPayload } from "jsonwebtoken";
+import jwt, { Secret } from "jsonwebtoken";
 
 import { UnauthorizedError } from "../errors/unauthorized-error";
 
 dotenv.config();
 
-const { JWT_SECRET = "dev-secret" } = process.env;
-
-type TokenRequest = {
-  token: string | JwtPayload;
+export type AuthRequest = {
+  token: { _id: string };
 } & Request;
 
 export const auth = (req: Request, res: Response, next: NextFunction) => {
@@ -23,12 +21,12 @@ export const auth = (req: Request, res: Response, next: NextFunction) => {
   let payload;
 
   try {
-    payload = jwt.verify(token, JWT_SECRET);
+    payload = jwt.verify(token, process.env.JWT_SECRET as Secret);
   } catch (err) {
     throw new UnauthorizedError("Необходима авторизация");
   }
 
-  (req as TokenRequest).token = payload;
+  (req as AuthRequest).token = payload as { _id: string };
 
   next();
 };

@@ -1,6 +1,6 @@
 import { errors } from "celebrate";
 import cors from "cors";
-import dotenv from "dotenv";
+import * as dotenv from "dotenv";
 import express from "express";
 import helmet from "helmet";
 import mongoose from "mongoose";
@@ -15,7 +15,7 @@ import appRouter from "./routers/index";
 dotenv.config();
 
 const {
-  PORT = 5000,
+  PORT = 3000,
   DATABASE_URL = "mongodb+srv://sheinsvyatoslav:M8rDvN01WsFqGsm4@cluster0.htt72.mongodb.net/moviesdb?retryWrites=true",
 } = process.env;
 const app = express();
@@ -33,6 +33,6 @@ app.use(errorLogger);
 app.use(errors());
 app.use(errorHandler);
 
-mongoose.connect(DATABASE_URL);
+mongoose.connect("mongodb://localhost:27017/moviesdb");
 
 app.listen(PORT, () => console.log(`App listening on port ${PORT}`));
